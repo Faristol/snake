@@ -1,5 +1,5 @@
-let board = 500;
-let cell = 10;
+let board = 800;
+let cell = 50;
 let canvas = null;
 let id = 0;
 let snake = [
@@ -8,7 +8,7 @@ let snake = [
   { x: 0, y: 0 },
 ];
 let food = generateFood();
-//const snakeSpeed = 1;
+const snakeSpeed = 200;
 //default -> right
 let currentDirection = { x: 1, y: 0 };
 let lastDirection = { x: 1, y: 0 };
@@ -59,17 +59,20 @@ const game = () => {
   //a tocat la poma
   //o a colisionat -> window.location.href = './index.html';
   checkCollisions();
-
-  id = window.setInterval(game, 200);
+  id = window.setInterval(game, snakeSpeed);
 };
 const draw = () => {
   if (canvas.getContext) {
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.width);
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    snake.forEach((segment) => {
-      drawSegment(segment.x, segment.y, "green");
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    snake.forEach((segment, index) => {
+      if (index === 0) {
+        drawHead(segment.x, segment.y);
+      } else {
+        drawSegment(segment.x, segment.y, "green");
+      }
     });
     if (food) {
       drawSegment(food.x, food.y, "red");
@@ -78,8 +81,41 @@ const draw = () => {
       food = generateFood();
     }
   }
-  generateFood()
+  generateFood();
   console.log(food);
+};
+const drawHead = (x, y) => {
+  const headImage = new Image();
+  headImage.src = "./snakehead.png";
+  headImage.onload = () => {
+    ctx.save();
+    ctx.translate(x * cell + cell / 2, y * cell + cell / 2);
+    ctx.rotate(getDirectionAngle());
+    ctx.drawImage(headImage, -cell / 2, -cell / 2, cell, cell);
+    ctx.restore();
+  };
+};
+const getDirectionAngle = () => {
+  let angle = 0;
+  switch (true) {
+    case currentDirection.x === 1:
+      //right
+      angle = 0;
+      break;
+    case currentDirection.x === -1:
+      //left
+      angle = Math.PI;
+      break;
+    case currentDirection.y === 1:
+      //up
+      angle = Math.PI / 2;
+      break;
+    case currentDirection.y === -1:
+      //down
+      angle = -Math.PI / 2;
+      break;
+  }
+  return angle;
 };
 const drawSegment = (x, y, color) => {
   ctx.fillStyle = color;
@@ -156,14 +192,14 @@ function generateFood() {
   //com treballem cen cel·les el numero generat deura d'estar compres entre 0 i (500/10) 50 (ambdós inclosos) PERO COM
   //LES CELES VAN DE 0 A 49 LULTIM NO SINCLOU
   //i a més  les coordenades generades no deuran coincidir amb cap coordenada de cap segment
-  let randomX = Math.floor(Math.random()*(board/cell));
-  let randomY = Math.floor(Math.random()*(board/cell));
+  let randomX = Math.floor(Math.random() * (board / cell));
+  let randomY = Math.floor(Math.random() * (board / cell));
   while (
     snake.some((segment) => segment.x === randomX && segment.y === randomY)
   ) {
-    randomX = Math.floor(Math.random()*(board/cell));
-   randomY = Math.floor(Math.random()*(board/cell));
+    randomX = Math.floor(Math.random() * (board / cell));
+    randomY = Math.floor(Math.random() * (board / cell));
   }
   return { x: randomX, y: randomY };
-};
+}
 window.onload = inici;
