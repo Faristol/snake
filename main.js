@@ -1,5 +1,5 @@
-const board = 500;
-const cell = 10;
+let board = 500;
+let cell = 10;
 let canvas = null;
 let id = 0;
 let snake = [
@@ -7,7 +7,7 @@ let snake = [
   { x: 1, y: 0 },
   { x: 0, y: 0 },
 ];
-let food = { x: 10, y: 40 };
+let food = generateFood();
 //const snakeSpeed = 1;
 //default -> right
 let currentDirection = { x: 1, y: 0 };
@@ -66,6 +66,8 @@ const draw = () => {
   if (canvas.getContext) {
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.width);
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
     snake.forEach((segment) => {
       drawSegment(segment.x, segment.y, "green");
     });
@@ -73,9 +75,10 @@ const draw = () => {
       drawSegment(food.x, food.y, "red");
     } else {
       //sino hi ha, la generem tinguent en compte les posicions dels segments del snake
-      generateFood();
+      food = generateFood();
     }
   }
+  generateFood()
   console.log(food);
 };
 const drawSegment = (x, y, color) => {
@@ -147,21 +150,21 @@ const checkCollisions = () => {
 const restart = () => {
   window.location.href = "./index.html";
 };
-const generateFood = () => {
+function generateFood() {
   //cell-board
-  //els numero generat deu ser multiple de cell
-  let randomX =
-    Math.floor(Math.random() * (Math.floor(board / cell) + 1));
-  //a més ha d'estar compres entre cell-board
-  let randomY =
-    Math.floor(Math.random() * (Math.floor(board / cell) + 1));
+  //si els px del cell son 10 i els px del board son 500 hi hauran 50x50 cel·les
+  //com treballem cen cel·les el numero generat deura d'estar compres entre 0 i (500/10) 50 (ambdós inclosos) PERO COM
+  //LES CELES VAN DE 0 A 49 LULTIM NO SINCLOU
+  //i a més  les coordenades generades no deuran coincidir amb cap coordenada de cap segment
+  let randomX = Math.floor(Math.random()*(board/cell));
+  let randomY = Math.floor(Math.random()*(board/cell));
   while (
     snake.some((segment) => segment.x === randomX && segment.y === randomY)
   ) {
-    randomX = Math.floor(Math.random() * (board / cell) + 1);
-    randomY = Math.floor(Math.random() * (board / cell) +1);
+    randomX = Math.floor(Math.random()*(board/cell));
+   randomY = Math.floor(Math.random()*(board/cell));
   }
-  food = { x: randomX, y: randomY };
+  return { x: randomX, y: randomY };
 };
 
 window.onload = inici;
