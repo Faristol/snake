@@ -166,5 +166,4 @@ function generateFood() {
   }
   return { x: randomX, y: randomY };
 };
-
 window.onload = inici;
