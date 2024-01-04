@@ -59,11 +59,15 @@ const draw = () => {
     ctx.clearRect(0,0,canvas.width,canvas.width);
     snake.forEach((segment)=>{
       ctx.fillStyle = "green";
+      ctx.strokeStyle = "black";
       ctx.fillRect(segment.x*cell,segment.y*cell,cell,cell);
+      ctx.strokeRect(segment.x*cell,segment.y*cell,cell,cell);
     })
     if(food){
       ctx.fillStyle = "red";
+      ctx.strokeStyle = "black";
       ctx.fillRect(food.x*cell,food.y*cell,cell,cell);
+      ctx.strokeRect(food.x*cell,food.y*cell,cell,cell);
     }
   }
 };
