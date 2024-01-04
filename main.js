@@ -67,22 +67,22 @@ const draw = () => {
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.width);
     snake.forEach((segment) => {
-      ctx.fillStyle = "green";
-      ctx.strokeStyle = "black";
-      ctx.fillRect(segment.x * cell, segment.y * cell, cell, cell);
-      ctx.strokeRect(segment.x * cell, segment.y * cell, cell, cell);
+      drawSegment(segment.x, segment.y, "green");
     });
     if (food) {
-      ctx.fillStyle = "red";
-      ctx.strokeStyle = "black";
-      ctx.fillRect(food.x * cell, food.y * cell, cell, cell);
-      ctx.strokeRect(food.x * cell, food.y * cell, cell, cell);
+      drawSegment(food.x, food.y, "red");
     } else {
       //sino hi ha, la generem tinguent en compte les posicions dels segments del snake
       generateFood();
     }
-    generateFood();
   }
+  console.log(food);
+};
+const drawSegment = (x, y, color) => {
+  ctx.fillStyle = color;
+  ctx.strokeStyle = "black";
+  ctx.fillRect(x * cell, y * cell, cell, cell);
+  ctx.strokeRect(x * cell, y * cell, cell, cell);
 };
 const update = () => {
   //sha de fer una copia profunda per a que no mantinga la referencia, amb [...snake] no serviria,
@@ -135,7 +135,12 @@ const checkCollisions = () => {
     restart();
   }
   //ara vegem si xoca contra les parets
-  if(snake[0].x*cell>board||snake[0].x*cell<0||snake[0].y*cell>board||snake[0].y*cell<0){
+  if (
+    snake[0].x * cell > board ||
+    snake[0].x * cell < 0 ||
+    snake[0].y * cell > board ||
+    snake[0].y * cell < 0
+  ) {
     restart();
   }
 };
@@ -143,16 +148,20 @@ const restart = () => {
   window.location.href = "./index.html";
 };
 const generateFood = () => {
-  //0-board
-  let randomX = Math.floor((Math.random()*board+1));
-  let randomY = Math.floor((Math.random()*board+1));
-  //per a fer-ho més dinàmic
-  //i com board sempre serà major que la cel·la
-  //suposant que la cel·la sempre tindrà 0 
-
-  console.log(randomX);
-  console.log(randomY);
-
-}
+  //cell-board
+  //els numero generat deu ser multiple de cell
+  let randomX =
+    Math.floor(Math.random() * (Math.floor(board / cell) + 1));
+  //a més ha d'estar compres entre cell-board
+  let randomY =
+    Math.floor(Math.random() * (Math.floor(board / cell) + 1));
+  while (
+    snake.some((segment) => segment.x === randomX && segment.y === randomY)
+  ) {
+    randomX = Math.floor(Math.random() * (board / cell) + 1);
+    randomY = Math.floor(Math.random() * (board / cell) +1);
+  }
+  food = { x: randomX, y: randomY };
+};
 
 window.onload = inici;
