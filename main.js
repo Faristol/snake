@@ -37,7 +37,6 @@ const inici = async () => {
   } catch (error) {
     console.error("Error loading images:", error);
   }
-  game();
 };
 
 const movementControl = (e) => {
