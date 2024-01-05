@@ -142,7 +142,7 @@ const checkCollisions = () => {
     //aci hi ha un problema -> si al menjar-se la poma, l'ultim segment del snake, creix fora dels limits del canvas
     //de moment no farem res
     snake.push({
-      //soc un genio i en ma casa no ho saben
+
       x:
         lastDirection.x === 1
           ? snake[snake.length - 1].x + cell
