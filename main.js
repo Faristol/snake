@@ -1,6 +1,11 @@
-let board = 800;
-let cell = 50;
+const board = 800;
+const cell = 50;
+const snakeSpeed = 200;
+let headImage;
+let appleImage;
+
 let canvas = null;
+let ctx = null;
 let id = 0;
 let snake = [
   { x: 2, y: 0 },
@@ -8,17 +13,30 @@ let snake = [
   { x: 0, y: 0 },
 ];
 let food = generateFood();
-const snakeSpeed = 200;
 //default -> right
 let currentDirection = { x: 1, y: 0 };
 let lastDirection = { x: 1, y: 0 };
-
-const inici = () => {
+const loadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+  });
+};
+const inici = async () => {
   canvas = document.querySelector("#cv");
   document.addEventListener("keydown", movementControl);
   canvas.width = board;
   canvas.height = board;
   canvas.style.border = "1px solid black";
+  try {
+    headImage = await loadImage("./snakehead.png");
+    appleImage = await loadImage("./apple.png");
+    game();
+  } catch (error) {
+    console.error("Error loading images:", error);
+  }
   game();
 };
 
@@ -26,7 +44,6 @@ const movementControl = (e) => {
   switch (e.key) {
     case "ArrowUp":
       //x cte y--
-      console.log("ArrowUp");
       lastDirection = currentDirection;
       currentDirection = { x: 0, y: -1 };
       break;
@@ -34,20 +51,17 @@ const movementControl = (e) => {
       //x cte y++
       lastDirection = currentDirection;
       currentDirection = { x: 0, y: 1 };
-      console.log("ArrowDown");
       break;
     case "ArrowLeft":
       //x-- y cte
       lastDirection = currentDirection;
       currentDirection = { x: -1, y: 0 };
-      console.log("ArrowLeft");
 
       break;
     case "ArrowRight":
       //x++ y cte
       lastDirection = currentDirection;
       currentDirection = { x: 1, y: 0 };
-      console.log("ArrowRight");
       break;
   }
 };
@@ -75,47 +89,30 @@ const draw = () => {
       }
     });
     if (food) {
-      drawSegment(food.x, food.y, "red");
+      drawApple(food.x, food.y);
     } else {
       //sino hi ha, la generem tinguent en compte les posicions dels segments del snake
       food = generateFood();
     }
   }
-  generateFood();
-  console.log(food);
+};
+const drawApple = (x, y) => {
+  //si ho feia aixina notava el parpadeig
+  //appleImage.onload = () => {
+  //ctx.drawImage(appleImage, x*cell, y*cell, cell, cell);
+  //}
+  ctx.drawImage(appleImage, x * cell, y * cell, cell, cell);
 };
 const drawHead = (x, y) => {
-  const headImage = new Image();
-  headImage.src = "./snakehead.png";
-  headImage.onload = () => {
-    ctx.save();
-    ctx.translate(x * cell + cell / 2, y * cell + cell / 2);
-    ctx.rotate(getDirectionAngle());
-    ctx.drawImage(headImage, -cell / 2, -cell / 2, cell, cell);
-    ctx.restore();
-  };
+  //esto es fumadeta
+  ctx.save();
+  ctx.translate(x * cell + cell / 2, y * cell + cell / 2);
+  ctx.rotate(getDirectionAngle());
+  ctx.drawImage(headImage, -cell / 2, -cell / 2, cell, cell);
+  ctx.restore();
 };
 const getDirectionAngle = () => {
-  let angle = 0;
-  switch (true) {
-    case currentDirection.x === 1:
-      //right
-      angle = 0;
-      break;
-    case currentDirection.x === -1:
-      //left
-      angle = Math.PI;
-      break;
-    case currentDirection.y === 1:
-      //up
-      angle = Math.PI / 2;
-      break;
-    case currentDirection.y === -1:
-      //down
-      angle = -Math.PI / 2;
-      break;
-  }
-  return angle;
+  return Math.atan2(currentDirection.y, currentDirection.x);
 };
 const drawSegment = (x, y, color) => {
   ctx.fillStyle = color;
