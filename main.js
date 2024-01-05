@@ -3,6 +3,8 @@ const cell = 50;
 const snakeSpeed = 200;
 let headImage;
 let appleImage;
+let score = 0;
+let record = 0;
 
 let canvas = null;
 let ctx = null;
@@ -30,6 +32,12 @@ const inici = async () => {
   canvas.width = board;
   canvas.height = board;
   canvas.style.border = "1px solid black";
+  if(localStorage.getItem('record')){
+    record = localStorage.getItem('record');
+  }else{
+    localStorage.setItem('record',record);
+  }
+  refreshRecord();
   try {
     headImage = await loadImage("./snakehead.png");
     appleImage = await loadImage("./apple.png");
@@ -38,7 +46,17 @@ const inici = async () => {
     console.error("Error loading images:", error);
   }
 };
-
+const refreshRecord = () => {
+  document.getElementById('highestScore').innerHTML = `Highest Score: ${record}`;
+  localStorage.setItem('record',record);
+}
+const refreshScore = () => {
+  document.getElementById('currentScore').innerHTML = `Score: ${score}`;
+  if(score > record){
+    record = score;
+    refreshRecord();
+  }
+}
 const movementControl = (e) => {
   switch (e.key) {
     case "ArrowUp":
@@ -142,7 +160,6 @@ const checkCollisions = () => {
     //aci hi ha un problema -> si al menjar-se la poma, l'ultim segment del snake, creix fora dels limits del canvas
     //de moment no farem res
     snake.push({
-
       x:
         lastDirection.x === 1
           ? snake[snake.length - 1].x + cell
@@ -152,6 +169,8 @@ const checkCollisions = () => {
           ? snake[snake.length - 1].y + cell
           : snake[snake.length - 1].y - cell,
     });
+    score++;
+    refreshScore();
     return;
   }
   //vegem si xoca contra algun del seus segments
@@ -171,9 +190,9 @@ const checkCollisions = () => {
   }
   //ara vegem si xoca contra les parets
   if (
-    snake[0].x * cell > board ||
+    snake[0].x * cell >= board ||
     snake[0].x * cell < 0 ||
-    snake[0].y * cell > board ||
+    snake[0].y * cell >= board ||
     snake[0].y * cell < 0
   ) {
     restart();
